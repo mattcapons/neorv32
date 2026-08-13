@@ -569,33 +569,36 @@ begin
   sdi_di  <= spi_do;
   spi_di  <= sdi_do when (spi_csn(7) = '0') else spi_do;
 
-
+  -- COMMENTED OUT FOR THE PROJECT
+  -- additions to unused signals
+  slink_rx.addr <= (others => '0');
+  slink_rx.last <= '0';
   -- Stream-Link FIFO Buffer ----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  slink_buffer: entity neorv32.neorv32_prim_fifo
-  generic map (
-    AWIDTH  => 0,
-    DWIDTH  => 32+4+1,
-    OUTGATE => true
-  )
-  port map (
-    -- global control --
-    clk_i                 => clk_gen,
-    rstn_i                => rst_gen,
-    clear_i               => '0',
-    -- write port --
-    wdata_i(31 downto  0) => slink_tx.data,
-    wdata_i(35 downto 32) => slink_tx.addr,
-    wdata_i(36)           => slink_tx.last,
-    we_i                  => slink_tx.valid,
-    free_o                => slink_tx.ready,
-    -- read port --
-    re_i                  => slink_rx.ready,
-    rdata_o(31 downto  0) => slink_rx.data,
-    rdata_o(35 downto 32) => slink_rx.addr,
-    rdata_o(36)           => slink_rx.last,
-    avail_o               => slink_rx.valid
-  );
+  --slink_buffer: entity neorv32.neorv32_prim_fifo
+  --generic map (
+  --  AWIDTH  => 0,
+  --  DWIDTH  => 32+4+1,
+  --  OUTGATE => true
+  --)
+  --port map (
+  --  -- global control --
+  --  clk_i                 => clk_gen,
+  --  rstn_i                => rst_gen,
+  --  clear_i               => '0',
+  --  -- write port --
+  --  wdata_i(31 downto  0) => slink_tx.data,
+  --  wdata_i(35 downto 32) => slink_tx.addr,
+  --  wdata_i(36)           => slink_tx.last,
+  --  we_i                  => slink_tx.valid,
+  --  free_o                => slink_tx.ready,
+  --  -- read port --
+  --  re_i                  => slink_rx.ready,
+  --  rdata_o(31 downto  0) => slink_rx.data,
+  --  rdata_o(35 downto 32) => slink_rx.addr,
+  --  rdata_o(36)           => slink_rx.last,
+  --  avail_o               => slink_rx.valid
+  --);
 
 
   -- UART Simulation Receivers --------------------------------------------------------------
