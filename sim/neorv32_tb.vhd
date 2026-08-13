@@ -18,6 +18,9 @@ use neorv32.neorv32_package.all;
 library work;
 use work.jtag_dmi_pkg.all;
 
+-- ACCELERATOR PACKAGE
+use work.systolic_pkg.all;
+
 entity neorv32_tb is
   generic (
     JTAG_TESTS_EN     : boolean                        := true;        -- enable JTAG/DMI tests in testbench
@@ -128,6 +131,12 @@ architecture neorv32_tb_rtl of neorv32_tb is
   signal xbus_core_rsp, xbus_ext_mem_a_rsp, xbus_ext_mem_b_rsp, xbus_mmio_rsp, xbus_trig_rsp : xbus_rsp_t;
   signal xbus_rom_req, xbus_ram_req, xbus_fmem_data_req, xbus_fmem_tag_req : xbus_req_t;
   signal xbus_rom_rsp, xbus_ram_rsp, xbus_fmem_data_rsp, xbus_fmem_tag_rsp : xbus_rsp_t;
+
+  ----------------------------------------------------------------------------------------------
+  -- ACCELERATOR DEDICATED
+  ----------------------------------------------------------------------------------------------
+  signal cfs_out : std_ulogic_vector(255 downto 0);
+  signal acc_ready : std_ulogic;
 
 begin
 
@@ -472,8 +481,8 @@ begin
     -- PWM --
     pwm_o          => open,
     -- Custom Functions Subsystem IO --
-    cfs_in_i       => (others => '0'),
-    cfs_out_o      => open,
+    cfs_in_i       => (0 => acc_ready, others => '0'),
+    cfs_out_o      => cfs_out,
     -- NeoPixel-compatible smart LED interface --
     neoled_o       => open,
     -- Machine timer system time --
@@ -772,5 +781,24 @@ begin
     mem_req_i => xbus_fmem_data_req,
     mem_rsp_o => xbus_fmem_data_rsp
   );
+
+
+  -----------------------------------------------------------------
+  -- ACCELERATOR INSTANTIATION
+  -----------------------------------------------------------------
+  my_acc_inst : entity work.acc_top
+    port map(
+        start_i     => cfs_out(0),
+        clk_i       => clk_gen,
+        rstn_i      => rst_gen,
+        acc_num_i   => cfs_out(32 downto 1),
+        tx_vld_i    => slink_tx.valid,
+        rx_rdy_i    => slink_rx.ready,
+        tx_data_i   => slink_tx.data,
+        tx_rdy_o    => slink_tx.ready,
+        rx_vld_o    => slink_rx.valid,
+        rdy_o       => acc_ready,
+        rx_data_o   => slink_rx.data
+    );
 
 end architecture;

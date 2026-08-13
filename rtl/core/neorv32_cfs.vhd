@@ -55,6 +55,16 @@ begin
 
   cfs_out_o <= (others => '0'); -- not used for this minimal example
 
+  ----------------------------------------------------------------------------------------------
+  -- ACCELERATOR DEDICATED
+  ----------------------------------------------------------------------------------------------
+  cfs_out_o(0)            <= cfs_reg_wr(0)(0);  -- start
+  cfs_out_o(32 downto 1)  <= cfs_reg_wr(1);     -- acc_num
+
+  cfs_reg_rd(0) <= cfs_reg_wr(0); -- optional readback
+  cfs_reg_rd(1) <= cfs_reg_wr(1); -- optional readback
+  cfs_reg_rd(2) <= (31 downto 1 => '0') & cfs_in_i(0); -- ready
+
   -- Interrupt ------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- The CFS features a single interrupt signal, which is connected to the CPU's "fast interrupt" channel 1 (FIRQ1).
