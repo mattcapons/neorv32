@@ -53,17 +53,16 @@ begin
   -- By default, the CFS provides two IO ports (cfs_in_i and cfs_out_o) that are available at the processor's top entity.
   -- These are intended as "conduits" to propagate custom CFS signals between the CFS and the processor top entity.
 
-  cfs_out_o <= (others => '0'); -- not used for this minimal example
-
   ----------------------------------------------------------------------------------------------
   -- ACCELERATOR DEDICATED
   ----------------------------------------------------------------------------------------------
-  cfs_out_o(0)            <= cfs_reg_wr(0)(0);  -- start
-  cfs_out_o(32 downto 1)  <= cfs_reg_wr(1);     -- acc_num
+  process(all)
+  begin
+    cfs_out_o <= (others => '0');
 
-  cfs_reg_rd(0) <= cfs_reg_wr(0); -- optional readback
-  cfs_reg_rd(1) <= cfs_reg_wr(1); -- optional readback
-  cfs_reg_rd(2) <= (31 downto 1 => '0') & cfs_in_i(0); -- ready
+    cfs_out_o(0)            <= cfs_reg_wr(0)(0); -- start
+    cfs_out_o(32 downto 1)  <= cfs_reg_wr(1);    -- acc_num
+  end process;
 
   -- Interrupt ------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -135,9 +134,15 @@ begin
   -- This is where the actual functionality can be implemented. The logic below is just a very
   -- simple example that transforms data from an input register into data in an output register.
 
-  cfs_reg_rd(0) <= x"0000000" & "000" & or_reduce_f(cfs_reg_wr(0));  -- OR all bits
-  cfs_reg_rd(1) <= x"0000000" & "000" & xor_reduce_f(cfs_reg_wr(1)); -- XOR all bits
-  cfs_reg_rd(2) <= bit_rev_f(cfs_reg_wr(2));                         -- bit reversal
-  cfs_reg_rd(3) <= cfs_reg_wr(3);                                    -- pass-through
+
+  ----------------------------------------------------------------------------------------------
+  -- ACCELERATOR DEDICATED
+  ----------------------------------------------------------------------------------------------
+
+  -- CPU read-back
+  cfs_reg_rd(0) <= cfs_reg_wr(0); -- start/control
+  cfs_reg_rd(1) <= cfs_reg_wr(1); -- acc_num
+  cfs_reg_rd(2) <= (31 downto 1 => '0') & cfs_in_i(0); -- accelerator ready
+  cfs_reg_rd(3) <= (others => '0');
 
 end architecture;
