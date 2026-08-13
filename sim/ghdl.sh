@@ -8,12 +8,16 @@ GHDL="${GHDL:-ghdl}"
 # GHDL build directory
 mkdir -p build
 
+# Import accelerator
+find ../../../accelerator/rtl -type f -name '*.vhd' -exec \
+  ghdl -i --std=08 --workdir=build --ieee=standard --work=accelerator {} \;
+
 # GHDL import
 find ../rtl/core ../sim -type f -name '*.vhd'  -exec \
-  ghdl -i --std=08 --workdir=build --ieee=standard --work=neorv32 {} \;
+  ghdl -i --std=08 --workdir=build -Pbuild --ieee=standard --work=neorv32 {} \;
 
 # GHDL analyze
-$GHDL -m --work=neorv32 --workdir=build --std=08 neorv32_tb
+$GHDL -m --work=neorv32 --workdir=build -Pbuild --std=08 neorv32_tb
 
 # GHDL run parameters
 if [ -z "$1" ]
@@ -25,7 +29,7 @@ fi
 echo "GHDL simulation run parameters: $GHDL_RUN_ARGS";
 
 # prepare GHDL run
-runcmd="$GHDL -r --work=neorv32 --workdir=build --std=08 neorv32_tb \
+runcmd="$GHDL -r --work=neorv32 --workdir=build -Pbuild --std=08 neorv32_tb \
   --max-stack-alloc=0 \
   --ieee-asserts=disable \
   --assert-level=error $GHDL_RUN_ARGS"

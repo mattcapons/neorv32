@@ -18,8 +18,9 @@ use neorv32.neorv32_package.all;
 library work;
 use work.jtag_dmi_pkg.all;
 
--- ACCELERATOR PACKAGE
-use work.systolic_pkg.all;
+-- ACCELERATOR LIBRARY
+library accelerator;
+use accelerator.systolic_pkg.all;
 
 entity neorv32_tb is
   generic (
@@ -789,7 +790,7 @@ begin
   -----------------------------------------------------------------
   -- ACCELERATOR INSTANTIATION
   -----------------------------------------------------------------
-  my_acc_inst : entity work.acc_top
+  my_acc_inst : entity accelerator.acc_top
     port map(
         start_i     => cfs_out(0),
         clk_i       => clk_gen,
