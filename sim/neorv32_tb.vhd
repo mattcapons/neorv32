@@ -24,12 +24,12 @@ use accelerator.systolic_pkg.all;
 
 entity neorv32_tb is
   generic (
-    JTAG_TESTS_EN     : boolean                        := true;        -- enable JTAG/DMI tests in testbench
+    JTAG_TESTS_EN     : boolean                        := false;        -- enable JTAG/DMI tests in testbench
     SMC_PSRAM_EN      : boolean                        := true;        -- enable 2xPSRAM models for SMC
     PSRAM_SIZE        : natural                        := 8*1024;      -- size of each PSRAM in bytes
     -- processor --
     CLOCK_FREQUENCY   : natural                        := 100_000_000; -- clock frequency of clk_i in Hz
-    DUAL_CORE_EN      : boolean                        := true;        -- enable dual-core homogeneous SMP
+    DUAL_CORE_EN      : boolean                        := false;        -- enable dual-core homogeneous SMP
     BOOT_MODE_SELECT  : natural range 0 to 2           := 2;           -- boot from pre-initialized IMEM
     BOOT_ADDR_CUSTOM  : std_ulogic_vector(31 downto 0) := x"00000000"; -- custom CPU boot address (if boot_config = 1)
     RISCV_ISA_C       : boolean                        := true;        -- compressed extension
@@ -67,17 +67,17 @@ entity neorv32_tb is
     CPU_RF_ARCH_SEL   : natural range 0 to 3           := 0;           -- register file implementation style select
     IMEM_EN           : boolean                        := true;        -- implement processor-internal instruction memory
     IMEM_BASE         : std_ulogic_vector(31 downto 0) := x"00000000"; -- base address of processor-internal instruction memory (naturally aligned)
-    IMEM_SIZE         : natural                        := 32*1024;     -- size of processor-internal instruction memory in bytes (use a power of 2)
+    IMEM_SIZE         : natural                        := 16*1024;     -- size of processor-internal instruction memory in bytes (use a power of 2)
     DMEM_EN           : boolean                        := true;        -- implement processor-internal data memory
     DMEM_BASE         : std_ulogic_vector(31 downto 0) := x"80000000"; -- base address of processor-internal data memory (naturally aligned)
-    DMEM_SIZE         : natural                        := 8*1024;      -- size of processor-internal data memory in bytes (use a power of 2)
+    DMEM_SIZE         : natural                        := 64*1024;      -- size of processor-internal data memory in bytes (use a power of 2)
     ICACHE_EN         : boolean                        := true;        -- implement instruction cache
     ICACHE_NUM_BLOCKS : natural range 1 to 4096        := 64;          -- i-cache: number of blocks, has to be a power of 2
     DCACHE_EN         : boolean                        := true;        -- implement data cache
     DCACHE_NUM_BLOCKS : natural range 1 to 4096        := 32;          -- d-cache: number of blocks, has to be a power of 2
     CACHE_BLOCK_SIZE  : natural range 4 to 1024        := 32;          -- i-cache/d-cache: block size in bytes, has to be a power of 2
     CACHE_BURSTS_EN   : boolean                        := true;        -- enable issuing of burst transfer for cache update
-    TRACE_LOG_EN      : boolean                        := true;        -- write full trace log to file
+    TRACE_LOG_EN      : boolean                        := false;        -- write full trace log to file
     -- external memory A --
     EXT_MEM_A_EN      : boolean                        := false;       -- enable memory
     EXT_MEM_A_BASE    : std_ulogic_vector(31 downto 0) := x"00000000"; -- base address, has to be word-aligned
@@ -393,10 +393,10 @@ begin
     IO_DMA_DSC_FIFO     => 8,
     -- Stream Link Interface (SLINK) --
     IO_SLINK_EN         => true,
-    IO_SLINK_RX_FIFO    => 4,
-    IO_SLINK_TX_FIFO    => 1,
+    IO_SLINK_RX_FIFO    => 16,
+    IO_SLINK_TX_FIFO    => 8,
     -- Instruction Tracer (TRACER) --
-    IO_TRACER_EN        => true,
+    IO_TRACER_EN        => false,
     IO_TRACER_BUFFER    => 32,
     IO_TRACER_SIMLOG_EN => TRACE_LOG_EN
   )
