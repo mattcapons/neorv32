@@ -331,6 +331,22 @@ static void test_acc_average(int8_t *a, int8_t *w, int32_t *c, uint32_t mat_size
     neorv32_uart0_printf("Average clock count: %d\n", average);
 }
 
+
+void check_matrices(const int32_t *a, const int32_t *b, uint32_t size) {
+    uint32_t elements = size * size;
+
+    for (uint32_t i = 0; i < elements; i++) {
+        if (a[i] != b[i]) {
+            neorv32_uart0_printf("Matrix comparison failed at index %u: %ld != %ld\n",
+                   i, (long)a[i], (long)b[i]);
+            return;
+        }
+    }
+
+    neorv32_uart0_printf("Matrix comparison successful: all elements match.\n");
+}
+
+
 static void make_test_matrix(int8_t *a, uint32_t size) {
     for (uint32_t i = 0; i < size * size; i++) {
         a[i] = (int8_t)((i % 20) - 10);
@@ -384,7 +400,7 @@ int main() {
     neorv32_cpu_csr_set(CSR_MIE, 1u << SLINK_FIRQ_ENABLE);
     neorv32_cpu_csr_set(CSR_MSTATUS, 1u << CSR_MSTATUS_MIE);
 
-    #define N 12
+    #define N 8
 
     int8_t a[N * N];
     int8_t w[N * N];
@@ -396,6 +412,8 @@ int main() {
 
     test_normal(a, w, cpu_result, N);
     test_acc(a, w, acc_result, N);
+    check_matrices(cpu_result, acc_result, N);
+
 
     test_normal_average(a, w, cpu_result, N);
     test_acc_average(a, w, acc_result, N);
